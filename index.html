@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optic Manager - إدارة كشوفات النظارات</title>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- مكتبة SheetJS لتصدير البيانات إلى Excel بدون إنترنت -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="logo-area">
+                <i class="fa-solid fa-glasses logo-icon"></i>
+                <div>
+                    <h1>Optic Manager</h1>
+                    <p>نظام تسجيل كشوفات ومقاسات النظارات</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <!-- زر تصدير الإكسيل -->
+                <button type="button" id="exportExcelBtn" class="btn btn-success" style="background-color: #27ae60; color: white;">
+                    <i class="fa-solid fa-file-excel"></i> تصدير إلى Excel
+                </button>
+                <!-- زر طباعة الروشتة -->
+                <button type="button" id="printBtn" class="btn btn-secondary">
+                    <i class="fa-solid fa-print"></i> طباعة الروشتة الحالية
+                </button>
+            </div>
+        </header>
+
+        <form id="opticsForm" class="main-form">
+            
+            <!-- Customer & Doctor Info Section -->
+            <div class="card info-card">
+                <h2 class="card-title"><i class="fa-solid fa-user-doctor"></i> البيانات الأساسية</h2>
+                <div class="info-grid">
+                    <div class="form-group">
+                        <label for="date"><i class="fa-regular fa-calendar"></i> التاريخ</label>
+                        <input type="date" id="date">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctor"><i class="fa-solid fa-user-md"></i> اسم الطبيب المعالج</label>
+                        <input type="text" id="doctor" placeholder="المصطفى للنظارات">
+                    </div>
+                    <div class="form-group">
+                        <label for="client"><i class="fa-regular fa-user"></i> اسم العميل *</label>
+                        <input type="text" id="client" placeholder="المصطفى للنظارات" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone"><i class="fa-solid fa-phone"></i> رقم الهاتف</label>
+                        <input type="tel" id="phone" placeholder="010XXXXXXXX">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescription Details Section -->
+            <div class="card prescription-card">
+                <h2 class="card-title"><i class="fa-solid fa-eye"></i> مقاسات النظر (Prescription)</h2>
+                
+                <div class="eyes-wrapper">
+                    <!-- Left Eye -->
+                    <div class="eye-box left-eye">
+                        <div class="eye-header">
+                            <h3>العين اليسرى (OS)</h3>
+                            <span class="badge badge-left">L</span>
+                        </div>
+                        <div class="eye-grid">
+                            <div class="input-unit">
+                                <span>AXIS</span>
+                                <input type="text" id="left_axis" placeholder=" ">
+                            </div>
+                            <div class="input-unit">
+                                <span>CYL</span>
+                                <input type="text" id="left_cyl" placeholder="  ">
+                            </div>
+                            <div class="input-unit">
+                                <span>SPH</span>
+                                <input type="text" id="left_sph" placeholder="  "> 
+                            </div>
+                        </div>
+                        <div class="form-group extra-group">
+                            <label for="left_add">مقاس القراءة (Near Add)</label>
+                            <input type="text" id="left_add" placeholder="+1.00">
+                        </div>
+                    </div>
+
+                    <!-- Right Eye -->
+                    <div class="eye-box right-eye">
+                        <div class="eye-header">
+                            <h3>العين اليمنى (OD)</h3>
+                            <span class="badge badge-right">R</span>
+                        </div>
+                        <div class="eye-grid">
+                            <div class="input-unit">
+                                <span>AXIS</span>
+                                <input type="text" id="right_axis" placeholder="  "> 
+                            </div>
+                            <div class="input-unit">
+                                <span>CYL</span>
+                                <input type="text" id="right_cyl" placeholder="  ">
+                            </div>
+                            <div class="input-unit">
+                                <span>SPH</span>
+                                <input type="text" id="right_sph" placeholder=" "> 
+                            </div>
+                        </div>
+                        <div class="form-group extra-group">
+                            <label for="right_add">مقاس القراءة (Near Add)</label>
+                            <input type="text" id="right_add" placeholder="+1.00">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shared Measurements & Notes -->
+                <div class="additional-measurements">
+                    <div class="form-group pd-group">
+                        <label for="pd"><i class="fa-solid fa-ruler-horizontal"></i> البُعد بين حدقتين العينين (PD)</label>
+                        <input type="text" id="pd" placeholder="مثال: 64 mm">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes"><i class="fa-regular fa-note-sticky"></i> ملاحظات الإطار والعدسات</label>
+                        <textarea id="notes" rows="3" placeholder="اكتب نوع العدسة المطلوب (أنتي ريفلكشن، بلوك، ...)..."></textarea>
+                    </div>
+
+                    <!-- الخيارات السريعة للعدسة -->
+                    <div class="quick-tags">
+                        <span class="tag-label">خيارات سريعة للعدسة:</span>
+                        <button type="button" class="tag-btn">بلوك كُت (Blue Cut)</button>
+                        <button type="button" class="tag-btn">أنِتي ريفلكشن (AR)</button>
+                        <button type="button" class="tag-btn">مالتي فوكل (Progressive)</button>
+                        <button type="button" class="tag-btn">حماية شمسية (Photogrey)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons (زرار الحفظ وتحديث البيانات) -->
+            <div class="form-actions" style="display: flex; gap: 10px;">
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> <span id="submitBtnText">حفظ الكشف في النظام</span>
+                </button>
+                <button type="button" id="cancelEditBtn" class="btn btn-secondary" style="display: none; background: #e2e8f0;">
+                    <i class="fa-solid fa-xmark"></i> إلغاء التعديل
+                </button>
+            </div>
+        </form>
+
+        <!-- جدول الكشوفات المحفوظة مع خانة البحث -->
+        <div class="card history-card" style="margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                <h2 class="card-title" style="margin-bottom: 0;"><i class="fa-solid fa-list-check"></i> سجل الكشوفات المحفوظة</h2>
+                
+                <!-- خانة البحث السريع -->
+                <div class="search-box" style="position: relative; min-width: 250px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                    <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو رقم الهاتف..." style="padding-right: 35px; width: 100%;">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>اسم العميل</th>
+                            <th>رقم الهاتف</th>
+                            <th>الطبيب</th>
+                            <th>العين اليمنى (R)</th>
+                            <th>العين اليسرى (L)</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody">
+                        <!-- الكشوفات ستظهر هنا تلقائياً -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- عنصر التنبيه الصغير (Toast Notification) -->
+    <div id="toast" class="toast"></div>
+
+    <!-- استدعاء مكتبات Firebase السحابية -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- ربط ملف الـ JavaScript الرئيسي -->
+    <script src="script.js"></script>
+</body>
+</html>
